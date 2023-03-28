@@ -7,8 +7,8 @@ import React, {
 import { useHistory, useLocation } from "react-router-dom";
 import axios from "axios";
 import * as Cookies from "js-cookie";
-
-import ReactDOM from "react-dom";
+import { Button } from "@mui/material";
+import { createPortal } from "react-dom";
 import {
   LoadScript,
   GoogleMap,
@@ -19,7 +19,6 @@ import {
   InfoWindowF,
   StandaloneSearchBox,
 } from "@react-google-maps/api";
-import CustomControls from "./CustomControls";
 
 const containerStyle = {
   width: "100%",
@@ -60,7 +59,6 @@ function PolygonMap(props = {}) {
   // Define refs for Polygon instance and listeners
   const polygonRef = useRef(null);
   const listenersRef = useRef([]);
-  const coordsRef = useRef([]);
   const [drawingState, setDrawingState] = useState({
     drawingMode: "polygon",
   });
@@ -88,10 +86,28 @@ function PolygonMap(props = {}) {
     },
   };
 
+  const MapControl = (props) => {
+    const map = useGoogleMap();
+    const controlButtonDiv = document.createElement('div');
+
+    useEffect(() => {
+      const controls = map.controls[window.google?.maps.ControlPosition[props.position]]
+      const index = controls.length;
+      controls.push(controlButtonDiv)
+      return () => {
+        controls.removeAt(index);
+      };
+    }, [map]);
+
+    return createPortal(
+      <div>{props.children}</div>,
+      controlButtonDiv
+    );
+  }
+
   useEffect(() => {
     if (tenantLatitude && tenantLatitude) {
       setCoords(latlng)
-      coordsRef.current = latlng;
     } else {
       setCoords([])
     }
@@ -100,22 +116,21 @@ function PolygonMap(props = {}) {
   const removeBoundary = () => {
     polygonRef.current.setMap(null);
     setCoords([]);
-    coordsRef.current = [];
     if (props.getLatLng) {
       props.getLatLng({})
     }
   };
   const onSubmitBoundary = () => {
-    const latlngData = coordsRef?.current;
     let req = new FormData()
-    const lat = latlngData.map((item) => {
+    const lat = coords.map((item) => {
       return item.lat;
     });
-    const lng = latlngData.map((item) => {
+    const lng = coords.map((item) => {
       return item.lng;
     });
     if (props.getLatLng && props.type === 'add') {
       props.getLatLng({ lat: lat, lng: lng })
+      props.onMapClose();
       return
     }
 
@@ -150,10 +165,6 @@ function PolygonMap(props = {}) {
       })
   };
 
-  const controlButtonDiv = document.createElement('div');
-  ReactDOM.render(<CustomControls onSubmitBoundary={onSubmitBoundary} removeBoundary={removeBoundary} coords={coordsRef.current} />
-    , controlButtonDiv);
-
   // Call setCoords with new edited path
   const onEdit = useCallback(() => {
     if (polygonRef.current) {
@@ -164,7 +175,6 @@ function PolygonMap(props = {}) {
           return { lat: latLng.lat(), lng: latLng.lng() };
         });
       setCoords(nextPath);
-      coordsRef.current = nextPath;
     }
   }, [setCoords]);
 
@@ -197,13 +207,10 @@ function PolygonMap(props = {}) {
     });
     polygon.setMap(null);
     setCoords(paths);
-    coordsRef.current = paths;
     setShowInfoWindow(true);
   };
 
   const onMapLoad = (map) => {
-    map.controls[window.google.maps.ControlPosition.LEFT_BOTTOM].push(controlButtonDiv);
-
     if (coords.length !== 0) {
       setCurLocation(coords[0]);
     } else {
@@ -230,7 +237,7 @@ function PolygonMap(props = {}) {
     setSearchLoc(searchBoxRef?.getPlaces());
     let results = searchBoxRef.getPlaces();
     const loc = results[0].geometry.location;
-    const pos = {lat: loc.lat(), lng: loc.lng() }
+    const pos = { lat: loc.lat(), lng: loc.lng() }
     setCurLocation(pos);
   };
 
@@ -276,6 +283,26 @@ function PolygonMap(props = {}) {
               }}
             />
           </StandaloneSearchBox>}
+          <MapControl position="LEFT_BOTTOM">
+            <Button
+              sx={{ marginLeft: '8px' }}
+              variant="contained"
+              size="small"
+              onClick={onSubmitBoundary}
+              disabled={coords.length === 0}
+            >
+              Submit Boundary
+            </Button>
+            <Button
+              sx={{ marginLeft: '8px' }}
+              variant="contained"
+              size="small"
+              onClick={removeBoundary}
+              disabled={coords.length === 0}
+            >
+              Remove Boundary
+            </Button>
+          </MapControl>
 
           {coords.length === 0 ? (
             <DrawingManager

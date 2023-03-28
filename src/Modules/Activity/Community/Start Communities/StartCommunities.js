@@ -66,7 +66,6 @@ function StartCommunities(props) {
         const [country, setCountry] = useState("");
         const [state, setState] = useState("");
         const [logo, setLogo] = useState("");
-        const [countryCode, setCountryCode] = useState("");
         const [responseData, setResponseData] = useState({})
 
         useEffect(() => {
@@ -112,15 +111,17 @@ function StartCommunities(props) {
         //   example of state code written ends here
 
         const getLatLng = (data) => {
-                if (data) {
+                if (Object.keys(data).length) {
+                        console.log('hello');
                         setTenantLat(data.lat.toString());
                         setTenantLng(data.lng.toString());
+
                 }
         };
 
         const OpenModalHandler = () => {
                 let value = 1;
-                if (name === "" || description === "") {
+                if (!name || !description || !tenantAddress || !tenantCity || !tenantZipcode) {
                         setErrorMsg(true);
                 } else {
                         setErrorMsg(false);
@@ -159,7 +160,7 @@ function StartCommunities(props) {
                 data.append("tenantAddress", tenantAddress);
                 data.append("tenantCity", tenantCity);
                 data.append("tenantZipcode", tenantZipcode);
-                data.append("communityType", "public");
+                data.append("communityType", communityType);
                 data.append("tenantLatitude", tenantLat);
                 data.append("tenantLangitude", tenantLng);
                 data.append("tenantCountry", tenantCountry);
@@ -230,6 +231,7 @@ function StartCommunities(props) {
                                                                                                         name="communityType"
                                                                                                         value="public"
                                                                                                         checked="checked"
+                                                                                                        onChange={(e) => setCommunityType(e.target.value)}
                                                                                                 />
                                                                                                 Public <span>Community accessible to all members</span>
                                                                                         </div>
@@ -238,6 +240,7 @@ function StartCommunities(props) {
                                                                                                         type="radio"
                                                                                                         name="communityType"
                                                                                                         value="private"
+                                                                                                        onChange={(e) => setCommunityType(e.target.value)}
                                                                                                 />
                                                                                                 Private{" "}
                                                                                                 <span>
@@ -292,6 +295,11 @@ function StartCommunities(props) {
                                                                                                 ))}
                                                                                         </>
                                                                                 </select>
+                                                                                {errorMsg ? (
+                                                                                        <p id="" className="StartCommunityErrorMsg">
+                                                                                                Please enter this field.
+                                                                                        </p>
+                                                                                ) : null}
                                                                         </div>
 
                                                                         <div className="EditInputSubfeild">
@@ -303,6 +311,11 @@ function StartCommunities(props) {
                                                                                         value={tenantAddress}
                                                                                         onChange={(e) => setTenantAddress(e.target.value)}
                                                                                 />
+                                                                                {errorMsg ? (
+                                                                                        <p id="" className="StartCommunityErrorMsg">
+                                                                                                Please enter this field.
+                                                                                        </p>
+                                                                                ) : null}
                                                                         </div>
 
                                                                         <div className="EditInputSubfeild">
@@ -314,6 +327,11 @@ function StartCommunities(props) {
                                                                                         value={tenantCity}
                                                                                         onChange={(e) => setTenantCity(e.target.value)}
                                                                                 />
+                                                                                {errorMsg ? (
+                                                                                        <p id="" className="StartCommunityErrorMsg">
+                                                                                                Please enter this field.
+                                                                                        </p>
+                                                                                ) : null}
                                                                         </div>
 
                                                                         <div className="EditInputSubfeild">
@@ -331,12 +349,15 @@ function StartCommunities(props) {
                                                                                                                 {item}
                                                                                                         </option>
 
-
-
                                                                                                 ))}
 
                                                                                         </>
                                                                                 </select>
+                                                                                {errorMsg ? (
+                                                                                        <p id="" className="StartCommunityErrorMsg">
+                                                                                                Please enter this field.
+                                                                                        </p>
+                                                                                ) : null}
                                                                         </div>
 
                                                                         <div className="EditInputSubfeild">
@@ -348,6 +369,11 @@ function StartCommunities(props) {
                                                                                         value={tenantZipcode}
                                                                                         onChange={(e) => setTenantZipcode(e.target.value)}
                                                                                 />
+                                                                                 {errorMsg ? (
+                                                                                <p id="" className="StartCommunityErrorMsg">
+                                                                                        Please enter this field.
+                                                                                </p>
+                                                                        ) : null}
                                                                         </div>
                                                                 </div>
                                                         </div>
@@ -357,6 +383,11 @@ function StartCommunities(props) {
                                                                                 <img src={MapIcon} alt="Map-Icon" />
                                                                                 Map Community
                                                                         </button>
+                                                                        {errorMsg ? (
+                                                                                <p id="" className="StartCommunityErrorMsg">
+                                                                                        Please select map coordinates.
+                                                                                </p>
+                                                                        ) : null}
                                                                 </div>
                                                                 <div className="Submit">
                                                                         <Button variant="contained" onClick={OpenModalHandler}>
@@ -370,7 +401,7 @@ function StartCommunities(props) {
                                                                                 onClose={handleClose}
                                                                                 classes={{ paperWidthSm: classes.paperWidthSm }}
                                                                         >
-                                                                                <PolygonMap getLatLng={getLatLng} type="add" />
+                                                                                <PolygonMap getLatLng={getLatLng} onMapClose={handleClose} type="add" />
                                                                         </Dialog>
                                                                 ) : null}
                                                         </div>
