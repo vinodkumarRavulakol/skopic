@@ -93,14 +93,18 @@ const CommunityInfo = (props) => {
   const tenant_list = useSelector(
     (state) => state.EditCommunityReducer.communityTenantList?.statesList
   );
+  const [isCountry, setCountry] = React.useState([]);
+  const [isState, setState] = React.useState("");
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [editCommunityItem, setEditCommunityItem] = useState({});
 
-  // const editCommunityItem = community_tenant_list.filter(
-  //   (item) => item.id == props.tenantId
-  // )[0]; //props.tenantId -254
+  useEffect(() => {
+    const filtered = community_tenant_list.filter(
+      (item) => item.id == props.tenantId
+    )[0];
+    setEditCommunityItem(filtered)
+  }, [community_tenant_list, props.tenantId]);
 
-  const editCommunityItem = community_tenant_list.filter(
-    (item) => item.id === "254"
-  )[0];
   const {
     name,
     description,
@@ -110,9 +114,7 @@ const CommunityInfo = (props) => {
     address1,
     zipcode,
   } = editCommunityItem;
-  const [isCountry, setCountry] = React.useState([]);
-  const [isState, setState] = React.useState("");
-  const [isOpen, setIsOpen] = React.useState(false);
+
 
   useEffect(() => {
     let countryArray = [];
