@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import Map from "./Map";
 import Marker from "./Marker";
 import TransitLayer from "./TransitLayer";
@@ -9,16 +10,33 @@ import mapscommunityimage from "../../Assets/images/mapscommunityimage.png"
 import makedefault from "../../Assets/images/makedefault.png"
 import Header from "../header/header.js"
 import communitysfolder from "../../Assets/images/communitysfolder.png"
+import * as mapActions from '../../store/actions/mapactions/mapAction'
 
 
 export default function Consumer() {
+  const dispatch = useDispatch();
   localStorage.setItem('issign', true);
   const places = getPlaces();
   const [placeIndex, setPlaceIndex] = useState(0);
   const [bound, setBound] = useState({});
   const [transitLayerEnabled, setTransitLayerEnabled] = useState(false);
   const [isFocus, setisFocus] = useState('');
+  const [communityList, setCommunityList] = useState({});
   const issign = !!JSON.parse(String(localStorage.getItem('issign')).toLowerCase());
+
+  useEffect(() => {
+    dispatch(mapActions.getNearByCommunitysData())
+  }, []);
+
+  const formattedCommunityList = Object.keys(communityList).length !== 0 ? communityList.physicalTenantList.map((item, idx) => {
+    const desc = communityList.physicalTenantDescs[idx];
+    const img = communityList.physicalTenantThumbLogos[idx];
+    return ({
+      name: item,
+      description: desc,
+      img: img
+    })
+  }) : [];
 
   return (
 
@@ -27,112 +45,47 @@ export default function Consumer() {
 
         (issign)
           ?
-          <Header/>
+          <Header />
           :
 
           <div className={styles.headerforsignin}>
-            
+
             <img src={skopiclogo} alt="skopic" />
-           <div> <h4>Choose your default community</h4></div>
-           <div></div>
+            <div> <h4>Choose your default community</h4></div>
+            <div></div>
           </div>
 
-
       }
+
       <div className={`row ${styles.maprow}`}>
         <div className={`col-sm-4`}>
           <div>
             <input type="text" placeholder="Search Community..." className={styles.inputcommunitys} />
             <button className={styles.communityfolder}><img src={communitysfolder} /></button>
           </div>
-
-          <div className={`${styles.communitymapimage} ${styles.communityinmap} ${isFocus == 'text_1' && styles.FocusAppearence}`}>
-            <img src={mapscommunityimage} alt="community image" />
-            <div className={styles.communitycontent}>
-              <h5>Community 1</h5>
-              <p>Sample text explaining what the defaultcommunity and what it will be</p>
-              <div className={styles.communitymapimage}>
-                {
-                  (issign)
-                    ? <>
-                      <button>Follow</button>
-                      <button>View Activity</button>
-                      <button><img src={makedefault} /></button>
-                    </>
-                    : <>
-                      <button><img src={makedefault} />Make Default</button>
-                      <button>View Activity</button>
-                    </>
-                }
+          {formattedCommunityList.length && formattedCommunityList.map((community) => (
+            <div className={`${styles.communitymapimage} ${styles.communityinmap} ${isFocus == 'text_1' && styles.FocusAppearence}`}>
+              <img src={community.img} alt="community image" />
+              <div className={styles.communitycontent}>
+                <hs>{community.name}</hs>
+                <p>{community.description}</p>
+                <div className={styles.communitymapimage}>
+                  {
+                    (issign)
+                      ? <>
+                        <button>Follow</button>
+                        <button>View Activity</button>
+                        <button><img src={makedefault} /></button>
+                      </>
+                      : <>
+                        <button><img src={makedefault} />Make Default</button>
+                        <button>View Activity</button>
+                      </>
+                  }
+                </div>
               </div>
             </div>
-          </div>
-
-          <div className={`${styles.communitymapimage} ${styles.communityinmap} ${isFocus == 'text_2' && styles.FocusAppearence}`}>
-            <img src={mapscommunityimage} alt="community image" />
-            <div className={styles.communitycontent}>
-              <h5>Community 2</h5>
-              <p>Sample text explaining what the default community and what it will be</p>
-              <div className={styles.communitymapimage}>
-                {
-                  (issign)
-                    ? <>
-                      <button>Follow</button>
-                      <button>View Activity</button>
-                      <button><img src={makedefault} /></button>
-                    </>
-                    : <>
-                      <button><img src={makedefault} />Make Default</button>
-                      <button>View Activity</button>
-                    </>
-                }
-              </div>
-            </div>
-          </div>
-
-          <div className={`${styles.communitymapimage} ${styles.communityinmap} ${isFocus == 'text_3' && styles.FocusAppearence}`}>
-            <img src={mapscommunityimage} alt="community image" />
-            <div className={styles.communitycontent}>
-              <h5>Community 3</h5>
-              <p>Sample text explaining what the defaultcommunity and what it will be</p>
-              <div className={styles.communitymapimage}>
-                {
-                  (issign)
-                    ? <>
-                      <button>Follow</button>
-                      <button>View Activity</button>
-                      <button><img src={makedefault} /></button>
-                    </>
-                    : <>
-                      <button><img src={makedefault} />Make Default</button>
-                      <button>View Activity</button>
-                    </>
-                }
-              </div>
-            </div>
-          </div>
-
-          <div className={`${styles.communitymapimage} ${styles.communityinmap}`}>
-            <img src={mapscommunityimage} alt="community image" />
-            <div className={styles.communitycontent}>
-              <h5>Community 4</h5>
-              <p>Sample text explaining what the defaultcommunity and what it will be</p>
-              <div className={styles.communitymapimage}>
-                {
-                  (issign)
-                    ? <>
-                      <button>Follow</button>
-                      <button>View Activity</button>
-                      <button><img src={makedefault} /></button>
-                    </>
-                    : <>
-                      <button><img src={makedefault} />Make Default</button>
-                      <button>View Activity</button>
-                    </>
-                }
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
 
 
@@ -156,11 +109,11 @@ export default function Consumer() {
             />
           ))}
         </Map>
-        
-        
 
-    
-       
+
+
+
+
         {/* <button
         className={styles.btn}
         onClick={() => setPlaceIndex((placeIndex + 1) % places.length)}

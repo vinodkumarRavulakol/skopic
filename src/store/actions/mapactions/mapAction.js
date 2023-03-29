@@ -17,6 +17,13 @@ export function fetchNearByCommunitysData(id) {
   };
 }
 
+export function getNearByCommunitysData(data) {
+  return {
+    type: allActions.GET_NEAR_BY_COMMUNITYS,
+    payload: data
+  };
+}
+
 //edit community update maps boundaries 
 
 export function fetchUpdatemapsBoundariesData(id) {

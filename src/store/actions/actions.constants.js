@@ -75,6 +75,7 @@ export const RECIEVE_RESPONSE_OF_EDIT_A_POST =
 //Action constants for fetching near by communitys
 export const FETCH_NEAR_BY_COMMUNITYS = "FETCH_NEAR_BY_COMMUNITYS";
 export const RECIEVE_NEAR_BY_COMMUNITYS = "RECIEVE_NEAR_BY_COMMUNITYS";
+export const GET_NEAR_BY_COMMUNITYS = "GET_NEAR_BY_COMMUNITYS";
 
 //Action constants for edit a update
 export const EDIT_A_UPDATE = "EDIT_A_UPDATE";

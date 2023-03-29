@@ -5,15 +5,13 @@ import { useSelector, useDispatch } from 'react-redux'
 const base = { lat: 39, lng: -100 };
 
 export default function GetMarkers() {
-  const nearByCommuntysData = useSelector((state) => state.mapReducer.nearByCommunitysData)
-  // console.log(nearByCommuntysData)
+  const nearByCommuntysData = useSelector((state) => state.mapReducer.getNearByCommunitysData)
   const countrylistdata = [];
   const countrylistdata1 = [];
 
   const markers = [];
 
   if (nearByCommuntysData && Object.keys(nearByCommuntysData).length > 0) {
-    console.log(nearByCommuntysData)
     if (nearByCommuntysData) {
       //   Object.entries(nearByCommuntysData.physicalTenantIds).map(subitem2 => {
       //     // console.log(subitem1[1])

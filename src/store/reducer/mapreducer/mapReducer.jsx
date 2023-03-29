@@ -5,6 +5,7 @@ const initialState = {
   isLoaded: false,
 
   nearByCommunitysData: {},
+  getNearByCommunitysData: {}
 }
 const mapReducer=(state = initialState, action)=> {
 
@@ -17,6 +18,11 @@ const mapReducer=(state = initialState, action)=> {
         return {
           ...state,
           nearByCommunitysData: action.payload,
+        };
+        case allActions.GET_NEAR_BY_COMMUNITYS:
+        return {
+          ...state,
+          getNearByCommunitysData: action.payload,
         };
 
     default: return state;

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import Communites from "./Communites/Communites"
 import Add from "../../../Assets/images/Add.svg"
 import "./Community.css";
@@ -20,7 +21,7 @@ function Community(){
        <Communites/>
        <div className="CommunityActions">
             <img src={Add} alt="AddOption"/>
-           <p > Follow more communities</p>
+            <Link to="/Googlemaps">Follow more communities</Link>
         </div>
             <div className="CommunityActions" onClick={startCommunity}>
             <img src={Add} alt="AddOption"/>

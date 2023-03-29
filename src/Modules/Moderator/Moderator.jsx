@@ -53,8 +53,8 @@ class Moderator extends Component {
   }
 
   getTenantId = () => {
-    return this.props.userDetails && this.props.userDetails.userData
-      ? this.props.userDetails.userData.tenantId
+    return this.props.moderatingCommunitysData && this.props.moderatingCommunitysData.restrictions
+      ? this.props.moderatingCommunitysData.restrictions[0].tenantId
       : this.state.moderatorTenantId;
   };
 
@@ -116,7 +116,8 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
   const { userDetails } = state.SignInReducer;
-  return { userDetails };
+  const { moderatingCommunitysData } = state.ModeratorReducer;
+  return { userDetails, moderatingCommunitysData };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Moderator);
