@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import Map from "./Map";
 import Marker from "./Marker";
 import TransitLayer from "./TransitLayer";
@@ -10,33 +10,27 @@ import mapscommunityimage from "../../Assets/images/mapscommunityimage.png"
 import makedefault from "../../Assets/images/makedefault.png"
 import Header from "../header/header.js"
 import communitysfolder from "../../Assets/images/communitysfolder.png"
-import * as mapActions from '../../store/actions/mapactions/mapAction'
-
 
 export default function Consumer() {
-  const dispatch = useDispatch();
+  const nearByCommuntysData = useSelector((state) => state.mapReducer.getNearByCommunitysData)
+
   localStorage.setItem('issign', true);
   const places = getPlaces();
   const [placeIndex, setPlaceIndex] = useState(0);
   const [bound, setBound] = useState({});
   const [transitLayerEnabled, setTransitLayerEnabled] = useState(false);
   const [isFocus, setisFocus] = useState('');
-  const [communityList, setCommunityList] = useState({});
   const issign = !!JSON.parse(String(localStorage.getItem('issign')).toLowerCase());
 
-  useEffect(() => {
-    dispatch(mapActions.getNearByCommunitysData())
-  }, []);
-
-  const formattedCommunityList = Object.keys(communityList).length !== 0 ? communityList.physicalTenantList.map((item, idx) => {
-    const desc = communityList.physicalTenantDescs[idx];
-    const img = communityList.physicalTenantThumbLogos[idx];
+  const formattedCommunityList = nearByCommuntysData?.physicalTenantList.map((item, idx) => {
+    const desc = nearByCommuntysData?.physicalTenantDescs[idx];
+    const img = nearByCommuntysData?.physicalTenantThumbLogos[idx];
     return ({
       name: item,
       description: desc,
       img: img
     })
-  }) : [];
+  });
 
   return (
 
@@ -67,7 +61,7 @@ export default function Consumer() {
             <div className={`${styles.communitymapimage} ${styles.communityinmap} ${isFocus == 'text_1' && styles.FocusAppearence}`}>
               <img src={community.img} alt="community image" />
               <div className={styles.communitycontent}>
-                <hs>{community.name}</hs>
+                <h5>{community.name}</h5>
                 <p>{community.description}</p>
                 <div className={styles.communitymapimage}>
                   {
@@ -88,19 +82,18 @@ export default function Consumer() {
           ))}
         </div>
 
-
         <Map
           zoom={5}
-          center={{ lat: places[placeIndex].lat, lng: places[placeIndex].lng }}
+          center={{ lat: Number(places[placeIndex].lat), lng: Number(places[placeIndex].lng) }}
           events={{ onBoundsChangerd: arg => setBound(arg) }}
         >
           <TransitLayer enabled={transitLayerEnabled} />
           {places.map((m, index) => (
             <Marker
-              key={m.id}
+              key={m?.id}
               active={placeIndex === index}
-              title={"Community: " + m.id}
-              position={{ lat: m.lat, lng: m.lng }}
+              title={"Community"}
+              position={{ lat: Number(m.lat), lng: Number(m.lng) }}
               icon
               events={{
                 // onClick: () => window.alert(`marker ${index} clicked`)
