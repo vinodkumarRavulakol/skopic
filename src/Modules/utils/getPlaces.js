@@ -4,32 +4,49 @@ const base = { lat: 39, lng: -100 };
 
 export default function GetMarkers() {
   const nearByCommuntysData = useSelector((state) => state.mapReducer.getNearByCommunitysData)
-  const latsData = [];
-  const lngsData = [];
+  const singleLatsArr = [];
+  const multiLatsArr = [];
+  const singleLngsArr = [];
+  const multiLngsArr = [];
 
-  nearByCommuntysData.tenantNeighberLats.map((subitem) => {
-    if (subitem.length > 1) {
-      latsData.push(subitem[0]);
+  nearByCommuntysData.tenantNeighberLats.map((item) => {
+    if (item.length > 1) {
+      multiLatsArr.push(item);
     } else {
-      latsData.push(...subitem)
+      singleLatsArr.push(item);
     }
   })
 
-  nearByCommuntysData.tenantNeighberLags.map((subitem) => {
-    if (subitem.length > 1) {
-      lngsData.push(subitem[0]);
+  nearByCommuntysData.tenantNeighberLags.map((item) => {
+    if (item.length > 1) {
+      multiLngsArr.push(item);
     } else {
-      lngsData.push(...subitem)
+      singleLngsArr.push(item);
     }
   })
 
-  const markers = latsData.map((item, idx) => {
+  const flatObj = (list1, list2) => {
+    return list1.map((lat, idx) => {
+      const lng = list2[idx]
+      return {
+        lat: lat,
+        lng: lng
+      }
+    });
+  }
+
+  const singleCoords = singleLatsArr.map(([item], idx) => {
     return ({
       lat: item,
-      lng: lngsData[idx]
+      lng: singleLngsArr[idx][0]
     })
   });
 
-  return markers;
+  const multiCoords = multiLatsArr.map((latItem, idx) => {
+      const latlngObj = flatObj(latItem, multiLngsArr[idx])
+      return latlngObj;
+  })
+
+  return {singleCoords, multiCoords};
 }
 

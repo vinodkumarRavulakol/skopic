@@ -15,12 +15,19 @@ export default function Consumer() {
   const nearByCommuntysData = useSelector((state) => state.mapReducer.getNearByCommunitysData)
 
   localStorage.setItem('issign', true);
-  const places = getPlaces();
+  const loc = getPlaces();
   const [placeIndex, setPlaceIndex] = useState(0);
+  const [coords, setCoords] = useState([]);
   const [bound, setBound] = useState({});
   const [transitLayerEnabled, setTransitLayerEnabled] = useState(false);
   const [isFocus, setisFocus] = useState('');
   const issign = !!JSON.parse(String(localStorage.getItem('issign')).toLowerCase());
+
+
+  let places = loc.singleCoords;
+  loc.multiCoords.forEach((item) => {
+    places.push(item[0])
+  })
 
   const formattedCommunityList = nearByCommuntysData?.physicalTenantList.map((item, idx) => {
     const desc = nearByCommuntysData?.physicalTenantDescs[idx];
@@ -31,6 +38,12 @@ export default function Consumer() {
       img: img
     })
   });
+ 
+
+  const showPolygon = (val) => {
+    const polygonItem = loc.multiCoords.find(coord => coord.some(item => item.lat === val));
+    setCoords(polygonItem)
+  }
 
   return (
 
@@ -86,6 +99,7 @@ export default function Consumer() {
           zoom={5}
           center={{ lat: Number(places[placeIndex].lat), lng: Number(places[placeIndex].lng) }}
           events={{ onBoundsChangerd: arg => setBound(arg) }}
+          coords={coords}
         >
           <TransitLayer enabled={transitLayerEnabled} />
           {places.map((m, index) => (
@@ -97,12 +111,11 @@ export default function Consumer() {
               icon
               events={{
                 // onClick: () => window.alert(`marker ${index} clicked`)
-                onClick: () => setisFocus('text_' + m.id)
+                onClick: () => { showPolygon(m.lat) }
               }}
             />
           ))}
         </Map>
-
 
 
 
