@@ -25,8 +25,6 @@ const containerStyle = {
   height: "80vh",
 };
 
-const center = { lat: 25.0014163, lng: -72.1208432 };
-
 function PolygonMap(props = {}) {
   const history = useHistory();
   const location = useLocation();
@@ -41,7 +39,20 @@ function PolygonMap(props = {}) {
     zipcode,
     tenantLatitude,
     tenantLangitude,
-    newsletterFrequency } = props
+    newsletterFrequency,
+    markers,
+    polygonCoords } = props
+
+    const formattedList = (data) => {
+      return data.map((obj) => {
+        return ({
+          lat: Number(obj.lat),
+          lng: Number(obj.lng),
+        });
+      })
+    }
+
+  const allMarkers = formattedList(markers);
 
   const latArry = tenantLatitude?.split(",");
   const lngArry = tenantLangitude?.split(",");
@@ -211,8 +222,10 @@ function PolygonMap(props = {}) {
   };
 
   const onMapLoad = (map) => {
-    if (coords.length !== 0) {
+    if (coords.length !== 0 && !markers) {
       setCurLocation(coords[0]);
+    } else if (allMarkers.length !== 0) {
+      setCurLocation(allMarkers[0]);
     } else {
       navigator?.geolocation.getCurrentPosition(
         ({ coords: { latitude: lat, longitude: lng } }) => {
@@ -221,7 +234,6 @@ function PolygonMap(props = {}) {
         }
       );
       window.google?.maps.event.addListener(map, "bounds_changed", () => {
-        console.log(map.getBounds());
         setBounds(map.getBounds());
       });
       setCoords([]);
@@ -241,6 +253,14 @@ function PolygonMap(props = {}) {
     setCurLocation(pos);
   };
 
+  const showPolygon = (obj) => {
+    const polygonItem = polygonCoords.find(coord => coord.some(item => Number(item.lat) === obj.lat));
+    if (polygonItem) {
+      const paths = formattedList(polygonItem);
+      setCoords(paths)
+    }
+  }
+
 
   return (
     <>
@@ -257,33 +277,35 @@ function PolygonMap(props = {}) {
           zoom={5}
           onLoad={onMapLoad}
         >
-          {coords.length === 0 && <StandaloneSearchBox
-            onLoad={onSearchBoxLoad}
-            onPlacesChanged={onPlacesChanged}
-            bounds={bounds}
-          >
-            <input
-              type="text"
-              placeholder="Search location"
-              style={{
-                boxSizing: `border-box`,
-                border: `1px solid transparent`,
-                width: `240px`,
-                height: `40px`,
-                padding: `12px 12px`,
-                borderRadius: `2px`,
-                boxShadow: `rgba(0, 0, 0, 0.3) 0px 1px 4px -1px`,
-                fontSize: `14px`,
-                outline: `none`,
-                textOverflow: `ellipses`,
-                position: "absolute",
-                left: "50%",
-                marginLeft: "-120px",
-                marginTop: "10px",
-              }}
-            />
-          </StandaloneSearchBox>}
-          <MapControl position="LEFT_BOTTOM">
+          {(coords.length === 0 && !markers) ? (
+            <StandaloneSearchBox
+              onLoad={onSearchBoxLoad}
+              onPlacesChanged={onPlacesChanged}
+              bounds={bounds}
+            >
+              <input
+                type="text"
+                placeholder="Search location"
+                style={{
+                  boxSizing: `border-box`,
+                  border: `1px solid transparent`,
+                  width: `240px`,
+                  height: `40px`,
+                  padding: `12px 12px`,
+                  borderRadius: `2px`,
+                  boxShadow: `rgba(0, 0, 0, 0.3) 0px 1px 4px -1px`,
+                  fontSize: `14px`,
+                  outline: `none`,
+                  textOverflow: `ellipses`,
+                  position: "absolute",
+                  left: "50%",
+                  marginLeft: "-120px",
+                  marginTop: "10px",
+                }}
+              />
+            </StandaloneSearchBox>
+          ) : null}
+          {!markers && (<MapControl position="LEFT_BOTTOM">
             <Button
               sx={{ marginLeft: '8px' }}
               variant="contained"
@@ -302,9 +324,9 @@ function PolygonMap(props = {}) {
             >
               Remove Boundary
             </Button>
-          </MapControl>
+          </MapControl>)}
 
-          {coords.length === 0 ? (
+          {(coords.length === 0 && allMarkers.length === 0) ? (
             <DrawingManager
               drawingMode={drawingState.drawingMode}
               options={options}
@@ -335,7 +357,7 @@ function PolygonMap(props = {}) {
             >
               {showInfoWindow && (
                 <InfoWindowF
-                  position={center}
+                  // position={center}
                   zIndex="10"
                   onCloseclick={(e) => setShowInfoWindow(false)}
                   options={{ maxWidth: 300 }}
@@ -345,10 +367,23 @@ function PolygonMap(props = {}) {
               )}
             </Polygon>
           )}
-          <MarkerF
-            position={curLocation}
-          // onClick={(e) => setShowInfoWindow(true)}
-          />
+          {markers ? (
+            <>
+              {allMarkers.map((marker) => (
+                <MarkerF
+                  position={marker}
+                  onClick={() => showPolygon(marker)}
+                />
+
+              ))}
+            </>
+          ) : (
+            <MarkerF
+              position={curLocation}
+            // onClick={(e) => setShowInfoWindow(true)}
+            />
+          )}
+
 
         </GoogleMap>
       </LoadScript>

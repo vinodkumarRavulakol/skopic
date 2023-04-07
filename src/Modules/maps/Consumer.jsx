@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import Map from "./Map";
+import PolygonMap from "../Moderator/EditCommunity/Polygon";
 import Marker from "./Marker";
 import TransitLayer from "./TransitLayer";
 import getPlaces from "../utils/getPlaces";
@@ -29,6 +30,7 @@ export default function Consumer() {
     places.push(item[0])
   })
 
+
   const formattedCommunityList = nearByCommuntysData?.physicalTenantList.map((item, idx) => {
     const desc = nearByCommuntysData?.physicalTenantDescs[idx];
     const img = nearByCommuntysData?.physicalTenantThumbLogos[idx];
@@ -38,12 +40,7 @@ export default function Consumer() {
       img: img
     })
   });
- 
 
-  const showPolygon = (val) => {
-    const polygonItem = loc.multiCoords.find(coord => coord.some(item => item.lat === val));
-    setCoords(polygonItem)
-  }
 
   return (
 
@@ -94,8 +91,11 @@ export default function Consumer() {
             </div>
           ))}
         </div>
+        <div className={`col-sm-8 ${styles.mapcontainer}`}>
+          <PolygonMap markers={places} polygonCoords={loc.multiCoords}/>
+        </div>
 
-        <Map
+        {/* <Map
           zoom={5}
           center={{ lat: Number(places[placeIndex].lat), lng: Number(places[placeIndex].lng) }}
           events={{ onBoundsChangerd: arg => setBound(arg) }}
@@ -115,7 +115,7 @@ export default function Consumer() {
               }}
             />
           ))}
-        </Map>
+        </Map> */}
 
 
 

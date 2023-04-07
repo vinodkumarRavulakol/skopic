@@ -5,29 +5,8 @@ import { Link } from "react-router-dom";
 import AddCommunity from '../../Assets/images/AddCommunity.png'
 import usaimage from '../../Assets/images/download.png'
 
-
 export default function Map({ center, zoom, coords, children, events }) {
   const { maps, map, mapRef, loading } = useGoogleMap({ zoom, center, events });
-  // const latlng = coords.map((item) => {
-  //   return ({
-  //     lat: Number(item.lat),
-  //     lng: Number(item.lng),
-  //   })
-  // })
-
-  // useEffect(() => {
-  //   if (latlng && map && map) {
-  //     const polygon = maps?.Polygon({
-  //       paths: latlng,
-  //       strokeColor: "#FF0000",
-  //       strokeOpacity: 0.8,
-  //       strokeWeight: 2,
-  //       fillColor: "#FF0000",
-  //       fillOpacity: 0.35,
-  //     });
-  //     polygon.setMap(map);
-  //   }
-  // }, [maps, map, latlng])
 
   useEffect(
     () => {
